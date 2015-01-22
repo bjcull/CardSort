@@ -1,0 +1,61 @@
+﻿@model CardSort.Models.HomeIndexViewModel
+@{
+    ViewBag.Title = "Home Page";
+}
+
+<div class="jumbotron">
+    <h1>Card Sort Experiment Processor</h1>
+    <p class="lead">Turn the experiment results into denormalised spreadsheets for analysis.</p>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <h2>What is this?</h2>
+        <p>
+            This web app processes the Card Sort experiment by Elise Kalokerinos. It puts the experiment's results into a relational database and outputs denormalised spreadsheets to be further analysed.
+        </p>
+    </div>
+    <div class="col-md-4">
+        @using (Html.BeginForm("Process", "Home", FormMethod.Post, new {enctype = "multipart/form-data"}))
+        {
+            <h2>Upload File</h2>
+            <p>Upload a CSV containing the results from the Card Sort experiment.</p>
+            <div class="form-group">
+                <input type="file" name="file" id="file" class="form-control" />
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Submit" class="btn btn-primary" />
+            </div>
+            
+            <h2>Clustering Analysis</h2>
+            <a href="@Url.Action("ClusteringAnalysis", "Home")" class="btn btn-success">Download Csv</a>
+        }
+    </div>
+    <div class="col-md-4">
+        <h2>Current Stats</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Participant</th>
+                    <th>Total Categories</th>
+                    <th>Total Strategies</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in Model.Participants)
+                {
+                    <tr>
+                        <td>@p.UniqueId</td>
+                        <td>@p.TotalCategories</td>
+                        <td>@p.TotalStrategies</td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3"><strong>Total Participants: @Model.Participants.Count()</strong></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
