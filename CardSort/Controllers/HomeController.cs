@@ -106,16 +106,54 @@ namespace CardSort.Controllers
 
         public ActionResult ClusteringAnalysis()
         {
-            using (var memoryStream = new MemoryStream())
-            using (var streamWriter = new StreamWriter(memoryStream))
+            var memoryStream = new MemoryStream();
+            var streamWriter = new StreamWriter(memoryStream);
+
             using (var db = new CardSortEntities())
             {
                 var csv = new CsvWriter(streamWriter);
 
                 var allStrategies = db.Strategies.ToList();
-            }
 
-            throw new NotImplementedException();
+                // Build Header Row
+                csv.WriteField(""); // Blank for the pivot cell
+                foreach (var strategy in allStrategies)
+                {
+                    csv.WriteField(strategy.Description);
+                }
+                csv.NextRecord();
+
+                // Build data rows
+                for (var y = 0; y < allStrategies.Count(); y++)
+                {
+                    csv.WriteField(allStrategies[y].Description); // Row Strategy
+
+                    for (var x = 0; x < allStrategies.Count(); x++)
+                    {
+                        if (x != y)
+                        {
+                            var yStrategyId = allStrategies[y].Id;
+                            var xStrategyId = allStrategies[x].Id;
+
+                            var clusterCount = db.Categories.Count(j => j.Strategies.Any(k => k.Id == yStrategyId)
+                                                                        &&
+                                                                        j.Strategies.Any(k => k.Id == xStrategyId));
+
+                            csv.WriteField(clusterCount);
+                        }
+                        else
+                        {
+                            csv.WriteField("");
+                        }
+
+                    }
+                    csv.NextRecord();
+                }
+
+                // "return File" automatically disposes the stream and writer.
+                streamWriter.BaseStream.Position = 0;
+                return File(streamWriter.BaseStream, "text/csv", string.Format("ClusterAnalysis_{0}.csv", DateTime.Now.ToString("yyyy-MM-dd_hhmmss")));
+            }            
         }
     }
 }
