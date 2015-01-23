@@ -150,6 +150,8 @@ namespace CardSort.Controllers
                     csv.NextRecord();
                 }
 
+                streamWriter.Flush();
+
                 // "return File" automatically disposes the stream and writer.
                 streamWriter.BaseStream.Position = 0;
                 return File(streamWriter.BaseStream, "text/csv", string.Format("ClusterAnalysis_{0}.csv", DateTime.Now.ToString("yyyy-MM-dd_hhmmss")));
